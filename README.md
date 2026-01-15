@@ -88,31 +88,26 @@ Os resultados deste projeto podem apoiar:
 ## 📁 Estrutura do repositório (proposta)
 
 ```text
-📦 dengue-recife-territorio-condicoes-urbanas
-│
+📦dengue-territorio-e-condicoes-urbanas-recife/
 ├── data/
-│   ├── raw/                # Dados brutos (CSV e JSON)
+│   ├── raw/
 │   │   ├── dengue/
 │   │   ├── zika/
 │   │   ├── chikungunya/
+│   │   ├── tabelas_auxiliares/
 │   │   └── metadados/
-│   │
-│   ├── processed/          # Dados tratados e padronizados
-│   └── analytics/          # Datasets analíticos finais
-│
-├── notebooks/              # Análises exploratórias e estudos
-│
-├── src/                    # Scripts de ETL e apoio
+│   ├── processed/
+│   └── analytics/
+├── notebooks/
+├── src/
 │   ├── extract/
 │   ├── transform/
 │   └── load/
-│
-├── dashboards/             # Arquivos ou links para visualizações
-│
-├── docs/                   # Documentação e relatórios
-│
+├── dashboards/
+├── docs/
 ├── README.md
-└── LICENSE
+└── LICENSE 
+
 ```
 
 ---
