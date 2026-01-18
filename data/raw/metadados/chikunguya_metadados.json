@@ -17,7 +17,7 @@
     },
     "recursos": [
       {
-        "identificador": "http://dados.recife.pe.gov.br/dataset/casos-de-dengue-zika-e-chikungunya/resource/c548ad21-6a01-4ed7-bb22-21a13296d601",
+        "identifi ador": "http://dados.recife.pe.gov.br/dataset/casos-de-dengue-zika-e-chikungunya/resource/c548ad21-6a01-4ed7-bb22-21a13296d601",
         "titulo": "Casos confirmados de Chikungunya",
         "formato": "csv",
         "descricao": "Contém os registros de casos confirmados de Chikungunya com dados sobre a data de notificação, classificação, os critério de confirmação, a evolução do caso e localização."
