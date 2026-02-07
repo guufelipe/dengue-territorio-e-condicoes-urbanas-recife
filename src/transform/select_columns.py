@@ -1,104 +1,100 @@
+from typing import Dict
 import pandas as pd
 
-def tratar_dados_dengue(df):
-    """
-    Recebe o DataFrame concatenado de Dengue.
-    Possui metadados completos (Notificação, Paciente, Sintomas, Classificação).
-    """
-    colunas_renomear = {
-        # --- Notificação ---
-        'num_notificacao': 'id_notificacao',
-        'dt_notificacao': 'data_notificacao',
-        'co_municipio_notificacao': 'cod_municipio_notificacao',
-        'co_unidade_notificacao': 'cod_unidade_notificacao',
-        
-        # --- Paciente ---
-        'dt_nascimento': 'paciente_nascimento',
-        'tp_sexo': 'paciente_sexo',
-        'tp_gestante': 'paciente_gestante',
-        'tp_raca_cor': 'paciente_raca',
-        'tp_zona_residencia': 'residencia_zona',
-        'no_bairro_residencia': 'residencia_bairro',
-        
-        # --- Clínicos ---
-        'febre': 'sintoma_febre',
-        'mialgia': 'sintoma_mialgia',
-        'cefaleia': 'sintoma_cefaleia',
-        'exantema': 'sintoma_exantema',
-        'vomito': 'sintoma_vomito',
-        'nausea': 'sintoma_nausea',
-        'dor_costas': 'sintoma_dor_costas',
-        'conjutivite': 'sintoma_conjuntivite',
-        'artrite': 'sintoma_artrite',
-        'artralgia': 'sintoma_artralgia',
-        
-        # --- Classificação e Evolução ---
-        'tp_classificacao_final': 'final_classificacao',
-        'st_ocorreu_hospitalizacao': 'final_hospitalizacao',
-        'tp_evolucao_caso': 'final_evolucao'
-    }
 
-    colunas_existentes = [col for col in colunas_renomear.keys() if col in df.columns]
+# =========================================================
+# MAPEAMENTO PADRÃO DE COLUNAS (SINAN → PROJETO)
+# =========================================================
+
+AGRAVOS_COLUMNS_MAP: Dict[str, str] = {
+    # -------------------------
+    # Notificação
+    # -------------------------
+    "NU_NOTIFIC": "num_notificacao",
+    "DT_NOTIFIC": "dt_notificacao",
+    "ID_MUNICIP": "co_municipio_notificacao",
+    "ID_UNIDADE": "co_unidade_notificacao",
+
+    # -------------------------
+    # Paciente
+    # -------------------------
+    "DT_NASC": "dt_nascimento",
+    "CS_SEXO": "sexo",
+    "CS_GESTANT": "gestante",
+    "CS_RACA": "raca_cor",
+    "TP_ZONA": "zona_residencia",
+    "NM_BAIRRO": "bairro_residencia",
+
+    # -------------------------
+    # Clínicos
+    # -------------------------
+    "FEBRE": "febre",
+    "MIALGIA": "mialgia",
+    "CEFALEIA": "cefaleia",
+    "EXANTEMA": "exantema",
+    "VOMITO": "vomito",
+    "NAUSEA": "nausea",
+    "DOR_COSTAS": "dor_costas",
+    "CONJUNTVIT": "conjuntivite",
+    "ARTRITE": "artrite",
+    "ARTRALGIA": "artralgia",
+
+    # -------------------------
+    # Classificação e evolução
+    # -------------------------
+    "CLASSI_FIN": "classificacao_final",
+    "HOSPITAL": "ocorreu_hospitalizacao",
+    "EVOLUCAO": "evolucao_caso",
+}
+
+
+# =========================================================
+# FUNÇÃO BASE (REUTILIZÁVEL)
+# =========================================================
+
+def _selecionar_e_renomear(
+    df: pd.DataFrame,
+    columns_map: Dict[str, str]
+) -> pd.DataFrame:
+    """
+    Seleciona apenas as colunas existentes no DataFrame
+    e renomeia para o padrão do projeto.
+    """
+
+    colunas_existentes = [
+        col for col in columns_map.keys()
+        if col in df.columns
+    ]
+
     df_filtrado = df[colunas_existentes].copy()
-    df_filtrado = df_filtrado.rename(columns=colunas_renomear)
+
+    df_filtrado = df_filtrado.rename(
+        columns=columns_map
+    )
+
     return df_filtrado
 
-def tratar_dados_zika(df):
-    """
-    Recebe o DataFrame concatenado de Zika.
-    Baseado no metadado fornecido: Apenas Notificação e Paciente disponíveis.
-    """
-    colunas_renomear = {
-        # --- Notificação ---
-        'num_notificacao': 'id_notificacao',
-        'dt_notificacao': 'data_notificacao',
-        'co_municipio_notificacao': 'cod_municipio_notificacao',
-        'co_unidade_notificacao': 'cod_unidade_notificacao',
-        
-        # --- Paciente ---
-        'dt_nascimento': 'paciente_nascimento',
-        'tp_sexo': 'paciente_sexo',
-        'tp_gestante': 'paciente_gestante',
-        'tp_raca_cor': 'paciente_raca',
-        'tp_zona_residencia': 'residencia_zona',
-        'no_bairro_residencia': 'residencia_bairro'
-    }
 
-    colunas_existentes = [col for col in colunas_renomear.keys() if col in df.columns]
-    df_filtrado = df[colunas_existentes].copy()
-    df_filtrado = df_filtrado.rename(columns=colunas_renomear)
-    return df_filtrado
+# =========================================================
+# FUNÇÕES POR AGRAVO
+# =========================================================
 
-def tratar_dados_chikungunya(df):
+def tratar_dados_dengue(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Recebe o DataFrame concatenado de Chikungunya.
-    Baseado no metadado fornecido: Apenas Notificação e Paciente disponíveis.
+    Seleção e padronização das colunas de Dengue.
     """
-    colunas_renomear = {
-        # --- Notificação ---
-        'num_notificacao': 'id_notificacao',
-        'dt_notificacao': 'data_notificacao',
-        'co_municipio_notificacao': 'cod_municipio_notificacao',
-        'co_unidade_notificacao': 'cod_unidade_notificacao',
-        
-        # --- Paciente ---
-        'dt_nascimento': 'paciente_nascimento',
-        'tp_sexo': 'paciente_sexo',
-        'tp_gestante': 'paciente_gestante',
-        'tp_raca_cor': 'paciente_raca',
-        'tp_zona_residencia': 'residencia_zona',
-        'no_bairro_residencia': 'residencia_bairro'
-        
-        # Nota: O metadado de Chikungunya fornecido lista colunas de transferência
-        # administrativa (dt_transf, nu_lote), mas não lista sintomas ou 
-        # classificação final. Portanto, não foram incluídos aqui.
-    }
+    return _selecionar_e_renomear(df, AGRAVOS_COLUMNS_MAP)
 
-    # 1. Filtra apenas as colunas que existem no dicionário
-    colunas_existentes = [col for col in colunas_renomear.keys() if col in df.columns]
-    df_filtrado = df[colunas_existentes].copy()
-    
-    # 2. Renomeia as colunas
-    df_filtrado = df_filtrado.rename(columns=colunas_renomear)
 
-    return df_filtrado
+def tratar_dados_zika(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Seleção e padronização das colunas de Zika.
+    """
+    return _selecionar_e_renomear(df, AGRAVOS_COLUMNS_MAP)
+
+
+def tratar_dados_chikungunya(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Seleção e padronização das colunas de Chikungunya.
+    """
+    return _selecionar_e_renomear(df, AGRAVOS_COLUMNS_MAP)
