@@ -1,17 +1,19 @@
 """
 normalize_keys.py
 
-Responsável por normalizar e enriquecer as chaves categóricas do dataset
-principal (dengue, zika, chikungunya) utilizando tabelas auxiliares oficiais.
+Responsável por normalizar e enriquecer chaves territoriais e categóricas
+do dataset principal (dengue, zika, chikungunya) utilizando tabelas
+auxiliares oficiais do Recife.
 
 Tabelas auxiliares utilizadas:
-- Agravos (CID → nome do agravo)
 - UF
 - Distritos
 - Bairros
 
-Este módulo NÃO filtra municípios.
-Ele apenas normaliza e padroniza informações.
+Este módulo:
+- NÃO filtra municípios
+- NÃO cria recortes analíticos
+- APENAS normaliza e enriquece chaves existentes
 """
 
 from pathlib import Path
@@ -32,17 +34,6 @@ AUX_PATH = PROJECT_ROOT / "data" / "raw" / "tabelas_auxiliares"
 # Loaders das tabelas auxiliares
 # =====================================================
 
-def load_agravos() -> pd.DataFrame:
-    """
-    Carrega a tabela de agravos (CID ↔ nome do agravo).
-    """
-    return pd.read_csv(
-        AUX_PATH / "tabela-dos-agravos.csv",
-        sep=";",
-        encoding="latin1"
-    )
-
-
 def load_uf() -> pd.DataFrame:
     """
     Carrega a tabela de UF.
@@ -56,7 +47,7 @@ def load_uf() -> pd.DataFrame:
 
 def load_distritos() -> pd.DataFrame:
     """
-    Carrega a tabela de distritos.
+    Carrega a tabela de distritos e municípios.
     """
     return pd.read_csv(
         AUX_PATH / "tabela-distrito.csv",
@@ -80,32 +71,14 @@ def load_bairros() -> pd.DataFrame:
 # Normalizações
 # =====================================================
 
-def normalize_agravo(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Normaliza o agravo a partir do código CID.
-    """
-    agravos = load_agravos()
-
-    agravos = agravos.rename(
-        columns={
-            "Código CID": "co_cid",
-            "Agravo": "agravo_descricao"
-        }
-    )
-
-    df = df.merge(
-        agravos,
-        how="left",
-        on="co_cid"
-    )
-
-    return df
-
-
 def normalize_uf(df: pd.DataFrame) -> pd.DataFrame:
     """
     Normaliza UF a partir do código da UF.
+    Executa apenas se a coluna existir no DataFrame.
     """
+    if "co_uf_notificacao" not in df.columns:
+        return df
+
     uf = load_uf()
 
     uf = uf.rename(
@@ -125,10 +98,15 @@ def normalize_uf(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+
 def normalize_distrito(df: pd.DataFrame) -> pd.DataFrame:
     """
     Normaliza distritos e municípios.
     """
+    required_cols = {"co_distrito_residencia", "co_municipio_residencia"}
+    if not required_cols.issubset(df.columns):
+        return df
+
     distritos = load_distritos()
 
     distritos = distritos.rename(
@@ -149,10 +127,14 @@ def normalize_distrito(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+
 def normalize_bairro(df: pd.DataFrame) -> pd.DataFrame:
     """
     Normaliza bairros mantendo o nome original e o nome padronizado.
     """
+    if "co_bairro_residencia" not in df.columns:
+        return df
+
     bairros = load_bairros()
 
     bairros = bairros.rename(
@@ -172,22 +154,21 @@ def normalize_bairro(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+
 # =====================================================
 # Função orquestradora
 # =====================================================
 
 def normalize_keys(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Aplica todas as normalizações de chaves no DataFrame.
+    Aplica todas as normalizações de chaves territoriais no DataFrame.
 
     Ordem:
-    1. Agravos
-    2. UF
-    3. Distritos / Municípios
-    4. Bairros
+    1. UF
+    2. Distritos / Municípios
+    3. Bairros
     """
 
-    df = normalize_agravo(df)
     df = normalize_uf(df)
     df = normalize_distrito(df)
     df = normalize_bairro(df)

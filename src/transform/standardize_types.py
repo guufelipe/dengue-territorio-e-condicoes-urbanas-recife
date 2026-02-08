@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 
-def standardize_common_types(df: pd.DataFrame) -> pd.DataFrame:
+def standardize_types(df: pd.DataFrame) -> pd.DataFrame:
     """
     Padroniza tipos de dados comuns a todos os agravos.
     Espera colunas já selecionadas e renomeadas.

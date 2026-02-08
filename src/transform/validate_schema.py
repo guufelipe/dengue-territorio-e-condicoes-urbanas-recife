@@ -173,6 +173,6 @@ def validate_schema(
 # from src.transform.validate_schema import validate_schema
 # validate_schema(df_dengue_sel, strict=False)
 
-# Teste no pipeline:
+# No pipeline:
 # from src.transform.validate_schema import validate_schema
 # validate_schema(df_final, strict=True)

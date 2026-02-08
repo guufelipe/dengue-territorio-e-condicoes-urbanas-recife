@@ -2,6 +2,11 @@ from pathlib import Path
 import pandas as pd
 
 
+# Caminho base do projeto
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+DATA_RAW_PATH = PROJECT_ROOT / "data" / "raw"
+
+
 def _infer_year_from_filename(filename: str) -> int | None:
     """
     Extrai o ano do nome do arquivo (ex: 2020, 2021, ...).
@@ -15,7 +20,6 @@ def _infer_year_from_filename(filename: str) -> int | None:
 
 def join_agravo_years(
     agravo: str,
-    base_path: Path,
     sep: str = ";",
     encoding: str = "latin1"
 ) -> pd.DataFrame:
@@ -27,12 +31,10 @@ def join_agravo_years(
     ----------
     agravo : str
         Nome do agravo (ex: 'dengue', 'zika', 'chikungunya')
-    base_path : Path
-        Caminho base para data/raw
     sep : str
-        Separador do CSV (default=';')
+        Separador do CSV
     encoding : str
-        Encoding do arquivo (default='latin1')
+        Encoding dos arquivos
 
     Retorno
     -------
@@ -40,7 +42,7 @@ def join_agravo_years(
         DataFrame consolidado com todos os anos
     """
 
-    agravo_path = base_path / agravo
+    agravo_path = DATA_RAW_PATH / agravo
 
     if not agravo_path.exists():
         raise FileNotFoundError(f"Pasta não encontrada: {agravo_path}")
@@ -56,7 +58,7 @@ def join_agravo_years(
                 low_memory=False
             )
 
-            # Metadados importantes para rastreabilidade
+            # Metadados de rastreabilidade
             df["agravo"] = agravo
             df["ano_origem"] = _infer_year_from_filename(csv_file.name)
             df["arquivo_origem"] = csv_file.name
